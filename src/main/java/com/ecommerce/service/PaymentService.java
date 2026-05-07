@@ -39,4 +39,31 @@ public class PaymentService {
     }
 
     public void confirmPayment(String paymentIntentId) {
-        try
+        try {
+            PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+            paymentIntent.confirm();
+        } catch (StripeException e) {
+            throw new RuntimeException("Failed to confirm payment: " + e.getMessage());
+        }
+    }
+
+    public void refundPayment(String paymentIntentId) {
+        try {
+            RefundCreateParams params = RefundCreateParams.builder()
+                    .setPaymentIntent(paymentIntentId)
+                    .build();
+
+            Refund.create(params);
+        } catch (StripeException e) {
+            throw new RuntimeException("Failed to refund payment: " + e.getMessage());
+        }
+    }
+
+    public PaymentIntent getPaymentIntent(String paymentIntentId) {
+        try {
+            return PaymentIntent.retrieve(paymentIntentId);
+        } catch (StripeException e) {
+            throw new RuntimeException("Failed to retrieve payment intent: " + e.getMessage());
+        }
+    }
+}
